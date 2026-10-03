@@ -1,0 +1,6 @@
+streamlit>=1.40
+pandas
+numpy
+joblib
+# TROQUE pela versão exata usada no Colab (rode: import sklearn; print(sklearn.__version__))
+scikit-learn==1.6.1
