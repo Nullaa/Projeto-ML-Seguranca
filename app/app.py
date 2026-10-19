@@ -1,4 +1,10 @@
+"""MVP – Análise Espacial da Criminalidade no Brasil (Sprint 3).
 
+App Streamlit que consome o pipeline treinado na Sprint 2 (modelos/*.joblib)
+e estima o nível de risco (Baixo / Médio / Alto) de uma UF em um ano.
+Os campos do formulário são gerados a partir de `metadados["atributos"]`,
+então o app continua funcionando se o modelo for retreinado.
+"""
 import sys
 from pathlib import Path
 
@@ -10,8 +16,8 @@ import streamlit as st
 st.set_page_config(page_title="Risco criminal por UF", page_icon="📍", layout="wide")
 
 
-
-
+# O pipeline foi salvo no Colab referenciando esta função em __main__.
+# Ela precisa existir aqui, com o mesmo nome, para o joblib.load funcionar.
 def limpar_infinitos(X):
     X = np.asarray(X, dtype=float)
     return np.where(np.isinf(X), np.nan, X)
@@ -26,9 +32,9 @@ CORES = {"Baixo": "#2e9e5b", "Médio": "#e0a21b", "Alto": "#d64545"}
 PRINCIPAIS = {
     "populacao": "População da UF (habitantes)",
     "taxa_alvo_100k_lag1": "Taxa do indicador-alvo no ano anterior (por 100 mil hab.)",
-    "variacao_pct_alvo": "Variação % da taxa do indicador-alvo",
-    "total_geral": "Total geral de ocorrências no ano",
-    "taxa_total_100k": "Taxa total de ocorrências (por 100 mil hab.)",
+    "variacao_pct_alvo": "Variação % da taxa do alvo (ano anterior vs. dois anos antes)",
+    "total_geral": "Total de ocorrências no ano (exceto o indicador-alvo)",
+    "taxa_total_100k": "Taxa total de ocorrências, exceto o alvo (por 100 mil hab.)",
 }
 
 
@@ -66,7 +72,7 @@ def prever(df):
     return pred, proba
 
 
-
+# ---------------- Barra lateral ----------------
 with st.sidebar:
     st.header("Sobre o modelo")
     st.write(f"**Indicador-alvo:** {alvo}")
@@ -89,7 +95,7 @@ if "uf" not in atributos:
 
 aba1, aba2 = st.tabs(["Predição individual", "Predição em lote (CSV)"])
 
-
+# ---------------- Predição individual ----------------
 with aba1:
     st.caption("Campos deixados em branco são preenchidos com a mediana do treino (mesmo tratamento do modelo).")
     with st.form("form_individual"):
@@ -124,7 +130,7 @@ with aba1:
         st.bar_chart(proba.iloc[0].rename("probabilidade"), horizontal=True)
         st.caption(f"{n_vazios} de {len(numericos)} atributos numéricos ficaram em branco e foram imputados pela mediana.")
 
-
+# ---------------- Predição em lote ----------------
 with aba2:
     st.write("Envie um CSV com uma linha por UF/ano. Colunas ausentes serão tratadas como vazias.")
     modelo_csv = pd.DataFrame(columns=atributos).to_csv(index=False).encode("utf-8-sig")
