@@ -251,8 +251,8 @@ else:
 for e in erros_carga:
     st.sidebar.warning(f"Modelo ignorado — {e}")
 
-aba_pan, aba_sim, aba_lote, aba_sobre = st.tabs(
-    ["Panorama do ano", "Simulador", "Lote (CSV)", "Sobre o modelo"]
+aba_pan, aba_sim, aba_lote = st.tabs(
+    ["Panorama do ano", "Simulador", "Lote (CSV)"]
 )
 
 # ------------------------------------------------------------------ 1. Panorama
@@ -296,8 +296,8 @@ with aba_pan:
                            ", ".join(sorted(d.loc[~d["alvo_reportado"], "uf"])) +
                            ". Elas ficam sem taxa observada.")
             st.caption("Atenção: o modelo final foi treinado com todos os anos do painel, então a "
-                       "comparação com a classe observada **não** mede o desempenho (isso está na aba "
-                       "'Sobre o modelo'). 'Classe do ano anterior' é a referência simples de repetir "
+                       "comparação com a classe observada **não** mede o desempenho. "
+                       "'Classe do ano anterior' é a referência simples de repetir "
                        "a classe do ano anterior.")
 
 # ------------------------------------------------------------------ 2. Simulador
@@ -436,55 +436,3 @@ with aba_lote:
                     st.bar_chart(saida["risco_previsto"].value_counts().reindex(CLASSES).fillna(0))
                     st.download_button("Baixar resultados", saida.to_csv(index=False).encode("utf-8-sig"),
                                        "predicoes_risco.csv", "text/csv")
-
-# ------------------------------------------------------------------ 4. Sobre o modelo
-with aba_sobre:
-    st.subheader("O que este modelo responde")
-    if tipo_atributos == "so_historico":
-        st.write("Usa apenas informações **até o ano anterior** (taxa do alvo, variação e taxas dos outros "
-                 "indicadores no ano anterior). É uma previsão de fato.")
-    else:
-        st.write("Usa o histórico da UF e os **outros indicadores do próprio ano**. Os indicadores medidos "
-                 "juntos podem ter causas em comum (por exemplo, a qualidade do registro de cada UF), então "
-                 "isto é uma estimativa contemporânea e **não** uma previsão do futuro.")
-    if modo_risco == "relativo":
-        st.write("As classes são **relativas**: tercis entre as UFs dentro de cada ano. 'Alto' quer dizer "
-                 "entre as UFs mais violentas daquele ano, não que o crime aumentou.")
-    else:
-        st.write("As classes usam **limites fixos** de taxa por 100 mil (tercis da série histórica). Como as "
-                 "taxas mudam ao longo do tempo, os limites podem ficar defasados em anos recentes.")
-
-    st.subheader("Desempenho (validação walk-forward)")
-    f1_m = meta.get("desempenho_walk_forward_f1_macro")
-    f1_p = meta.get("desempenho_persistencia_f1_macro")
-    if f1_m is not None and f1_p is not None:
-        c1, c2, c3 = st.columns(3)
-        c1.metric(f"F1-macro — {meta.get('modelo', 'modelo')}", f"{f1_m:.3f}")
-        c2.metric("F1-macro — repetir classe do ano anterior", f"{f1_p:.3f}")
-        c3.metric("Diferença", f"{f1_m - f1_p:+.3f}")
-        if f1_m - f1_p < 0.05:
-            st.warning("O ganho sobre simplesmente repetir a classe do ano anterior é pequeno e está "
-                       "dentro da variação entre rodadas. Interprete o resultado como uma estimativa "
-                       "aproximada, não como um instrumento de decisão.")
-        st.caption("Média do F1-macro em rodadas anuais: treina com os anos anteriores e testa no ano seguinte. "
-                   "O modelo exportado foi reajustado com todos os anos, então não deve ser avaliado nos mesmos dados.")
-    else:
-        st.info("Este arquivo de modelo não traz as métricas de desempenho (formato anterior à v5).")
-
-    st.subheader("Detalhes")
-    anos_te = anos_teste_modelo(meta)
-    st.write(f"- Anos usados no treino final: {', '.join(map(str, anos_tr)) or '—'}")
-    st.write(f"- Anos de teste da avaliação: {', '.join(map(str, anos_te)) or '—'}")
-    st.write(f"- Atributos ({len(atributos)}): " + ", ".join(rotulos.get(a, a) for a in atributos))
-    st.write(f"- Versão do pipeline: {meta.get('versao_pipeline', '—')}")
-
-    st.subheader("Limitações")
-    st.markdown(
-        "- Poucos anos e poucas UFs: as métricas têm incerteza alta.\n"
-        "- UFs que não reportaram o indicador em determinado ano foram retiradas da modelagem; "
-        "o modelo não foi treinado com esses casos.\n"
-        "- As classes vêm de tercis, sem critério oficial de risco em segurança pública.\n"
-        "- A UF entra como atributo, então o modelo aprende o nível típico de cada estado.\n"
-        "- É um modelo de base, sem atributos espaciais (vizinhança) nem ajuste de hiperparâmetros.\n"
-        "- Não estabelece relação causal."
-    )
