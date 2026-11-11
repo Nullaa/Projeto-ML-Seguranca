@@ -28,17 +28,6 @@ Organizar, analisar e apresentar dados públicos de criminalidade no Brasil, con
 
 ---
 
-## 🧭 O que foi entregue
-
-| Etapa | Entrega | Onde está |
-|---|---|---|
-| **Sprint 0** | Planejamento do projeto | `docs/Sprint0.pdf` |
-| **Sprint 1** | Análise exploratória (EDA) de 10 indicadores | `notebooks/Sprint_1_EDA_10_indicadores_v2.ipynb` · `docs/Sprint_1_.pdf` |
-| **Sprint 2** | MVP analítico: modelagem e exportação dos modelos | `notebooks/Sprint_2_MVP_Analitico_10_indicadores_v2.ipynb` · `docs/Kanban_Sprint2.pdf` |
-| **Sprint 3** | App interativo em Streamlit | `app/app.py` |
-| **Artigo** | Artigo científico do projeto | `article/Artigo_Analise_Espacial_Criminalidade_Brasil.pdf` |
-
----
 
 ## 🤖 O modelo
 
@@ -77,21 +66,7 @@ streamlit run app/app.py
 
 ---
 
-## 📂 Estrutura do repositório
 
-```
-├── app/          # app Streamlit (app.py)
-├── models/       # modelos treinados (.joblib)
-├── notebooks/    # Sprint 1 (EDA) e Sprint 2 (MVP analítico)
-├── article/      # artigo do projeto (PDF)
-├── docs/         # documentação das sprints (PDF)
-├── data/         # dados
-├── src/          # código-fonte auxiliar
-├── tests/        # testes
-└── requirements.txt
-```
-
----
 
 ## 🗃️ Fonte dos dados
 
