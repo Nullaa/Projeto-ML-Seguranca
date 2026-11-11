@@ -1,18 +1,3 @@
-"""MVP – Análise Espacial da Criminalidade no Brasil (Sprint 3), v2.
-
-App Streamlit que consome o modelo exportado na Sprint 2 (v5): modelos/*.joblib
-e, opcionalmente, o painel UF x ano (resultados/painel_uf_ano_<indicador>.csv).
-
-Abas:
-  1. Panorama do ano   - risco estimado para todas as UFs de um ano (precisa do painel)
-  2. Simulador         - risco de uma UF/ano; parte do painel ou de campos em branco
-  3. Lote (CSV)        - predição para várias linhas de uma vez
-  4. Sobre o modelo    - desempenho, o que o modelo responde e limitações
-
-Os campos são gerados a partir de `metadados["atributos"]`; o app continua válido se o
-modelo for retreinado com outro indicador-alvo ou outro cenário. Também lê metadados do
-formato antigo (anos_treino, tercil_1, tercil_2).
-"""
 import re
 import unicodedata
 from pathlib import Path
