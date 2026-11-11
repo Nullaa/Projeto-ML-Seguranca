@@ -49,6 +49,5 @@ O projeto foi pensado para atender a diferentes perfis:
 
 ---
 
-## 🚧 Status do projeto
 
-> Em desenvolvimento — próximas etapas incluem coleta e tratamento dos dados públicos, modelagem geoespacial e aplicação de técnicas de Machine Learning.
+
