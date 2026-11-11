@@ -397,7 +397,15 @@ with aba_lote:
         ultimo = painel[painel["historico_ok"]]["ano"].max()
         exemplo = painel[(painel["ano"] == ultimo) & painel["historico_ok"]].reindex(columns=["uf", "ano"] + [a for a in atributos if a != "uf"]).head(3)
     else:
-        exemplo = pd.DataFrame(columns=["uf", "ano"] + [a for a in atributos if a != "uf"])
+        # sem painel: modelo com 2 linhas de exemplo (campos em branco = mediana do treino)
+        colunas_ex = ["uf", "ano"] + [a for a in atributos if a != "uf"]
+        exemplo = pd.DataFrame([{c: None for c in colunas_ex} for _ in range(2)], columns=colunas_ex)
+        exemplo["uf"] = ["SC", "RS"]
+        exemplo["ano"] = [2021, 2021]
+        for c, v in (("populacao", [7_600_000, 11_400_000]), ("taxa_alvo_100k_lag1", [20.0, 60.0]),
+                     ("variacao_pct_alvo", [0.0, 10.0])):
+            if c in exemplo.columns:
+                exemplo[c] = v
     st.download_button("Baixar modelo de CSV", exemplo.to_csv(index=False).encode("utf-8-sig"),
                        "modelo_entrada.csv", "text/csv")
     arq = st.file_uploader("CSV de entrada", type="csv", key="lote")
@@ -407,7 +415,10 @@ with aba_lote:
         except Exception as erro:
             st.error(f"Não foi possível ler o CSV: {erro}")
             entrada = None
-        if entrada is not None:
+        if entrada is not None and entrada.empty:
+            st.error("O CSV não tem nenhuma linha de dados (só o cabeçalho). "
+                     "Preencha pelo menos uma linha e envie novamente.")
+        elif entrada is not None:
             if "uf" in atributos and "uf" not in entrada.columns:
                 st.error("O CSV precisa ter a coluna `uf`.")
             else:
